@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Particle Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #141e30, #243b55);
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Move Your Mouse to See the Magic!</h1>
+    <canvas id="particleCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particlesArray = [];
+        const colors = ['#ff6363', '#ffa36c', '#32de84', '#2c9eff', '#aa7ef3'];
+
+        class Particle {
+            constructor(x, y, size, color, speedX, speedY) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.color = color;
+                this.speedX = speedX;
+                this.speedY = speedY;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Shrink the particle
+                if (this.size > 0.1) this.size -= 0.05;
+            }
+        }
+
+        function initParticles(event) {
+            const x = event.x;
+            const y = event.y;
+            for (let i = 0; i < 5; i++) {
+                const size = Math.random() * 5 + 1;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const speedX = (Math.random() - 0.5) * 3;
+                const speedY = (Math.random() - 0.5) * 3;
+                particlesArray.push(new Particle(x, y, size, color, speedX, speedY));
+            }
+        }
+
+        function handleParticles() {
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+
+                if (particlesArray[i].size <= 0.2) {
+                    particlesArray.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        window.addEventListener('mousemove', initParticles);
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
